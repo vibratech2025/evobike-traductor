@@ -280,15 +280,44 @@ function mostrarResultado(texto) {
   guardarHistorial(texto);
 }
 
+function simplificarColor(colorCompleto) {
+  // Colores base en espanol para reconocer
+  var bases = ['Blanco','Negro','Gris','Azul','Rojo','Verde','Amarillo','Naranja',
+    'Violeta','Morado','Rosa','Marron','Beige','Dorado','Plateado','Celeste',
+    'Turquesa','Coral','Salmon','Crema','Bordo','Bordó','Ocre','Lima'];
+  
+  var partes = colorCompleto.split('/');
+  var coloresSimples = [];
+  
+  for (var i = 0; i < partes.length; i++) {
+    var parte = partes[i].trim();
+    var encontrado = '';
+    // Buscar el color base en la parte
+    for (var j = 0; j < bases.length; j++) {
+      if (parte.toLowerCase().indexOf(bases[j].toLowerCase()) !== -1) {
+        encontrado = bases[j];
+        break;
+      }
+    }
+    if (!encontrado) encontrado = parte.split(' ')[0]; // primer palabra si no encuentra
+    // Agregar solo si no esta repetido
+    if (encontrado && coloresSimples.indexOf(encontrado) === -1) {
+      coloresSimples.push(encontrado);
+    }
+  }
+  return coloresSimples.join(' / ');
+}
+
 function guardarHistorial(texto) {
   var modelo = parsear(texto, 'modelo');
-  var color = parsear(texto, 'color');
+  var colorCompleto = parsear(texto, 'color');
   var chasis = parsear(texto, 'chasis');
   var motor = parsear(texto, 'motor');
-  if (!modelo && !color) return;
-  var key = (modelo + '|||' + color).toLowerCase();
+  if (!modelo && !colorCompleto) return;
+  var colorSimple = simplificarColor(colorCompleto);
+  var key = (modelo + '|||' + colorSimple).toLowerCase();
   var hist = JSON.parse(localStorage.getItem('evo_hist') || '{}');
-  if (!hist[key]) hist[key] = { modelo: modelo, color: color, unidades: [] };
+  if (!hist[key]) hist[key] = { modelo: modelo, color: colorSimple, unidades: [] };
   hist[key].unidades.push({
     chasis: chasis || 'Sin codigo',
     motor: motor || '',
