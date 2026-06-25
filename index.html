@@ -193,6 +193,16 @@ function handleFile(input) {
   var file = input.files[0];
   if (!file) return;
   input.value = '';
+  
+  // Forzar mime type valido para Claude
+  var mime = file.type;
+  if (!mime || mime === '' || mime === 'image/heic' || mime === 'image/heif') {
+    mime = 'image/jpeg';
+  }
+  if (mime !== 'image/jpeg' && mime !== 'image/png' && mime !== 'image/gif' && mime !== 'image/webp') {
+    mime = 'image/jpeg';
+  }
+  
   var reader = new FileReader();
   reader.onload = function(e) {
     document.getElementById('screenHome').style.display = 'none';
@@ -204,7 +214,9 @@ function handleFile(input) {
     document.getElementById('btnsAccion').style.display = 'none';
     document.getElementById('loading').classList.add('show');
     textoFinal = '';
-    traducir(e.target.result.split(',')[1], file.type || 'image/jpeg');
+    // Usar el mime corregido, no el del data URL
+    var base64 = e.target.result.split(',')[1];
+    traducir(base64, mime);
   };
   reader.readAsDataURL(file);
 }
@@ -242,8 +254,10 @@ function traducir(base64, mime) {
 function parsear(texto, campo) {
   var lineas = texto.split('\n');
   for (var i = 0; i < lineas.length; i++) {
-    if (lineas[i].toLowerCase().indexOf(campo.toLowerCase() + ':') === 0) {
-      return lineas[i].split(':').slice(1).join(':').trim();
+    // Limpiar negritas markdown **campo:** y espacios
+    var linea = lineas[i].replace(/\*\*/g, '').trim();
+    if (linea.toLowerCase().indexOf(campo.toLowerCase() + ':') === 0) {
+      return linea.split(':').slice(1).join(':').trim();
     }
   }
   return '';
@@ -253,11 +267,12 @@ function mostrarResultado(texto) {
   document.getElementById('loading').classList.remove('show');
   textoFinal = texto;
   var html = texto.split('\n').map(function(line) {
-    var idx = line.indexOf(':');
+    var linea = line.replace(/\*\*/g, '').trim();
+    var idx = linea.indexOf(':');
     if (idx > 0 && idx < 35) {
-      return '<span class="f">' + esc(line.slice(0, idx + 1)) + '</span>' + esc(line.slice(idx + 1));
+      return '<span class="f">' + esc(linea.slice(0, idx + 1)) + '</span>' + esc(linea.slice(idx + 1));
     }
-    return esc(line);
+    return esc(linea);
   }).join('\n');
   document.getElementById('cardBody').innerHTML = html;
   document.getElementById('cardResult').classList.add('show');
