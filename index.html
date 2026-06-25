@@ -234,7 +234,7 @@ function traducir(base64, mime) {
         role: 'user',
         content: [
           { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
-          { type: 'text', text: 'Eres traductor de etiquetas de motos electricas chinas para EVOBIKE Argentina. Traduce TODO al espanol. NUNCA muestres chino. Respeta nombres de colores poeticos completos. Formato exacto, un campo por linea:\nModelo: [nombre]\nColor: [colores con /]\nChasis: [numero de chasis si existe, sino usa el numero de orden como identificador]\nMotor: [numero si existe]\nN Orden: [numero de orden]\nFecha: [fecha]\nOmite campos que no aparezcan.' }
+          { type: 'text', text: 'Eres traductor de etiquetas de motos electricas chinas para EVOBIKE Argentina. Traduce TODO al espanol. NUNCA muestres chino. Respeta nombres de colores poeticos completos. Formato exacto, un campo por linea:\nModelo: [nombre del modelo]\nColor: [colores completos con /]\nChasis: [si hay numero de chasis usalo, si NO hay chasis usa OBLIGATORIAMENTE el numero de orden como valor]\nMotor: [numero de motor si existe]\nN Orden: [numero de orden SIEMPRE que aparezca]\nFecha: [fecha]\nEl campo Chasis NUNCA puede quedar vacio si hay un N Orden visible en la etiqueta.' }
         ]
       }]
     })
